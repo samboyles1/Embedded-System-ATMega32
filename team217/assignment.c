@@ -37,72 +37,19 @@
 #define GAMETEXT "PSR\0"
 #define GAMETEXT_LEN 3
 #define SELECTED "_ - Selected\0"
-#define ZERO_i 0
-#define WIN_MESSAGE "_"
-#define ACKNOWLEGDE 'A'
 #define PLAYER1 '1'
 #define PLAYER2 '2'
+#define WIN '2'
+#define DRAW '1'
+#define LOSS '0'
 
-static uint8_t recv_char = NULL;
-static int recv_p1 = FALSE;
-static int sent_p1 = FALSE;
-static int recv_p2 = FALSE;
-static int sent_p2 = FALSE;
 
-static uint8_t ack_p1 = NULL;
-static uint8_t ack_p2 = NULL;
+static int result = NULL;
+static uint8_t recv_result = NULL;
+static uint8_t recv_p2_selection = NULL;
 static char char_to_send = NULL;
 static char player = NULL;
 
-
-//Function for displaying a single character
-//SHOULD BE ABSTRACTED OUT
-/*
-void display_character (uint8_t character)
-{
-    char buffer[CHAR_LENGTH];
-    buffer[0] = character;
-    buffer[1] = '\0';
-    tinygl_text (buffer);
-}
-
-// Returns 0 if you lose, 1 if a draw, 2 if you win
-//SHOULD BE ABSTRACTED OUT
-int test_for_win(uint8_t player_me, uint8_t player_them) {
-    
-    switch(player_me) {
-        case 80 :
-            if (player_them == 80) {
-                return DRAW;
-            } else if (player_them == 83) {
-                return LOSS;
-            } else if (player_them == 82) {
-                return WIN;
-            }
-            break;
-        case 83 :
-            if (player_them == 80) {
-                return WIN;
-            } else if (player_them == 83) {
-                return DRAW;
-            } else if (player_them == 82) {
-                return LOSS;
-            }
-            break;
-        case 82 :
-            if (player_them == 80) {
-                return LOSS;
-            } else if (player_them == 83) {
-                return WIN;
-            } else if (player_them == 82) {
-                return DRAW;
-            }
-            break;
-        }
-    return 0;
-}
-    
-*/
 
 int main (void)
 {
@@ -148,72 +95,68 @@ int main (void)
     }
     
     
-    
-    while (1)
-    {
+    while (1) {
         pacer_wait();
         tinygl_update();
         navswitch_update();
         
-        while (1) {
-            if (player == PLAYER1) {
-                while (recv_char == NULL) { 
-                    recv_char = receive();
-                }
-                if (recv_char != NULL && recv_char != ACKNOWLEGDE) {
-                    transmit(ACKNOWLEGDE);
-                }
-                recv_p1 = TRUE;
-                break;
-                
-            } else if (player == PLAYER2) {
-                
-                transmit(char_to_send);
-                ack_p2 = receive();
-                if (ack_p2 != NULL && ack_p2 != 0) {
-                    sent_p2 = TRUE;
-                    break;
+        if (navswitch_push_event_p(NAVSWITCH_PUSH)) 
+        {
+            if (player == PLAYER1) // THEY ARE MASTER BOARD
+            {
+                while(1)    //PLAYER 1's Game
+                {
+                    pacer_wait();
+                    
+                    tinygl_update();
+                    //receive
+                    if (recv_p2_selection == NULL) {
+                        if (ir_uart_read_ready_p ())
+                        {
+                            recv_p2_selection = ir_uart_getc ();
+                        } 
+                    }
+                    if (recv_p2_selection != NULL)
+                    {
+                        result = test_for_win(char_to_send, recv_p2_selection);
+                    }
+                    
+                    //compare
+                    display_character(result);
+                    ir_uart_putc(char_to_send);
+                    //transmit and display
+                    
+                    
+                    
+                    
                 }
             }
-        }
-        
-        while (1) {
-            if (player == '1') {
-                transmit(char_to_send);
-                ack_p1 = receive();
-                if (ack_p1 != NULL && ack_p1 != 0) {
-                    sent_p1 = TRUE;
-                    break;
-                }
-            
                 
-            } else if (player == '2') {
                 
-                while (recv_char == NULL) { 
-                    recv_char = receive();
+            if (player == PLAYER2) //THEY ARE JUST A PLAYER
+            {
+                while(1)
+                {
+                    pacer_wait();
+                    tinygl_update();
+                    //transmit
+                    while(1) {
+                        ir_uart_putc(char_to_send);
+                        if (ir_uart_read_ready_p ())
+                        {
+                            recv_result = ir_uart_getc ();
+                        } 
+                        if (recv_result == WIN || recv_result == DRAW || recv_result == LOSS)
+                        {
+                            break;
+                        }
+                    }
+                    display_character(recv_result);
+                    
                 }
-                if (recv_char != NULL && recv_char != ACKNOWLEGDE) {
-                    transmit(ACKNOWLEGDE);
-                }
-                recv_p2 = TRUE;
-                break;
             }
-        }
-        
-        
-        //if ((sent_p1 && recv_p1 && ack_p1) || (sent_p2 && recv_p2 && ack_p2)) {
-          //  break;
-        //}
-    
-        tinygl_text_mode_set(TINYGL_TEXT_MODE_SCROLL);
-        char* result = test_for_win(char_to_send, recv_char);
-        
-        tinygl_text(result);
-        //display_character(result);
-        while (1) {
-            pacer_wait();
-            tinygl_update();
         }
     }
 }
         
+    
