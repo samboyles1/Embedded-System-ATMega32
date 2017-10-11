@@ -48,7 +48,7 @@ static int recv_p1 = FALSE;
 static int sent_p1 = FALSE;
 static int recv_p2 = FALSE;
 static int sent_p2 = FALSE;
-
+static int flag = FALSE;
 static uint8_t ack_p1 = NULL;
 static uint8_t ack_p2 = NULL;
 static char char_to_send = NULL;
@@ -211,6 +211,10 @@ int main (void)
         tinygl_text(result);
         //display_character(result);
         while (1) {
+            while (!flag) {
+                transmit(char_to_send);
+                flag = TRUE;
+            }
             pacer_wait();
             tinygl_update();
         }
