@@ -55,55 +55,6 @@ static char char_to_send = NULL;
 static char player = NULL;
 
 
-//Function for displaying a single character
-//SHOULD BE ABSTRACTED OUT
-/*
-void display_character (uint8_t character)
-{
-    char buffer[CHAR_LENGTH];
-    buffer[0] = character;
-    buffer[1] = '\0';
-    tinygl_text (buffer);
-}
-
-// Returns 0 if you lose, 1 if a draw, 2 if you win
-//SHOULD BE ABSTRACTED OUT
-int test_for_win(uint8_t player_me, uint8_t player_them) {
-    
-    switch(player_me) {
-        case 80 :
-            if (player_them == 80) {
-                return DRAW;
-            } else if (player_them == 83) {
-                return LOSS;
-            } else if (player_them == 82) {
-                return WIN;
-            }
-            break;
-        case 83 :
-            if (player_them == 80) {
-                return WIN;
-            } else if (player_them == 83) {
-                return DRAW;
-            } else if (player_them == 82) {
-                return LOSS;
-            }
-            break;
-        case 82 :
-            if (player_them == 80) {
-                return LOSS;
-            } else if (player_them == 83) {
-                return WIN;
-            } else if (player_them == 82) {
-                return DRAW;
-            }
-            break;
-        }
-    return 0;
-}
-    
-*/
-
 int main (void)
 {
     system_init ();
@@ -206,7 +157,7 @@ int main (void)
         //}
     
         tinygl_text_mode_set(TINYGL_TEXT_MODE_SCROLL);
-        char* result = test_for_win(char_to_send, recv_char);
+        int result = test_for_win(char_to_send, recv_char);
         
         tinygl_text(result);
         //display_character(result);
