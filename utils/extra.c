@@ -6,9 +6,10 @@
 
 
 #define CHAR_LENGTH 2
-#define WIN "Win\0"
-#define DRAW "Draw\0"
-#define LOSS "Loss\0"
+#define WIN 'W'
+#define DRAW 'D'
+#define LOSS 'L'
+
 
 void display_character (uint8_t character)
 {
@@ -18,39 +19,36 @@ void display_character (uint8_t character)
     tinygl_text (buffer);
 }
 
-char* test_for_win(uint8_t player_me, uint8_t player_them)
+char test_for_win(char player_me, char player_them)
 {
-    char* returnVal;
+    
     switch(player_me) {
-        case 80 :
-            if (player_them == 80) {
-                returnVal = DRAW;
-            } else if (player_them == 83) {
-                returnVal = LOSS;
-            } else if (player_them == 82) {
-                returnVal = WIN;
+        case 'P' :
+            if (player_them == 'P') {
+                return DRAW;
+            } else if (player_them == 'S') {
+                return LOSS;
+            } else if (player_them == 'R') {
+                return WIN;
             }
-            return returnVal;
             break;
-        case 83 :
-            if (player_them == 80) {
-                returnVal = WIN;
-            } else if (player_them == 83) {
-                returnVal = DRAW;
-            } else if (player_them == 82) {
-                returnVal = LOSS;
+        case 'S' :
+            if (player_them == 'P') {
+                return WIN;
+            } else if (player_them == 'S') {
+                return DRAW;
+            } else if (player_them == 'R') {
+                return LOSS;
             }
-            return returnVal;
             break;
-        case 82 :
-            if (player_them == 80) {
-                returnVal = LOSS;
-            } else if (player_them == 83) {
-                returnVal = WIN;
-            } else if (player_them == 82) {
-                returnVal = DRAW;
+        case 'R' :
+            if (player_them == 'P') {
+                return LOSS;
+            } else if (player_them == 'S') {
+                return WIN;
+            } else if (player_them == 'R') {
+                return DRAW;
             }
-            return returnVal;
             break;
         }
     return 0;
@@ -67,7 +65,7 @@ char select_option(char* gametext)
         navswitch_update();
         //Currently cycles through each of P S R to enable selection of paper scissors or rock
         if (navswitch_push_event_p (NAVSWITCH_SOUTH)) {
-            if (i+1 > 2) {      //magic num
+            if (i+1 > 2) {      //magic num change to strlen
                 character = gametext[i];
                 i= 0;            //magic num
                 
@@ -94,6 +92,9 @@ char select_option(char* gametext)
     }
 }
 
+
+
+
 /**
  * Transmit the character you want to send over the ir blaster.
  * @param char_to_send The character you want to transmit
@@ -115,5 +116,4 @@ char receive(void)
     
 }
 
-    
 

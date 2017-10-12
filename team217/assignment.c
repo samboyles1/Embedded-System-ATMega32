@@ -96,10 +96,22 @@ int main (void)
             }
         }
         */
+        int i = 5;
+        while (i > 0) {
+            transmit(ACKNOWLEGDE);
+            i--;
+        }
         display_character(result);
+        int num = 0;
         while (1) {
             pacer_wait();
-            tinygl_update();
+            if (num) {
+                tinygl_update();
+            } else {
+                transmit(result);
+                
+            }
+            num = !num;
         }
        
        
@@ -121,12 +133,20 @@ int main (void)
             pacer_wait();
             recv_result = receive();
             if (recv_result == WIN || recv_result == DRAW || recv_result == LOSS) { //magic num
-                transmit(ACKNOWLEGDE);
+                //transmit(ACKNOWLEGDE);
                 flag_ack = TRUE;
             }
         }
         
-        display_character(recv_result);
+        
+        if (recv_result == WIN) {
+            display_character(LOSS);
+        } else if (recv_result == LOSS) {
+            display_character(WIN);
+        } else if (recv_result == DRAW) {
+            display_character(DRAW);
+        }
+        
         while (1) {
             pacer_wait();
             tinygl_update();
