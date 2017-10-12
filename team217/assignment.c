@@ -30,145 +30,116 @@
 #define NULL 0
 #define TRUE 1
 #define FALSE 0
-#define PACER_RATE 300
+
 #define MESSAGE_RATE 25
-#define NUM_GAMES 1
-#define READY_MESSAGE "Ready?\0"
+
 #define GAMETEXT "PSR\0"
-#define GAMETEXT_LEN 3
-#define SELECTED "_ - Selected\0"
-#define ZERO_i 0
-#define WIN_MESSAGE "_"
+#define PLAYERTEXT "12\0"
+
+
+#define WIN 'W'
+#define DRAW 'D'
+#define LOSS 'L'
+
 #define ACKNOWLEGDE 'A'
 #define PLAYER1 '1'
 #define PLAYER2 '2'
 
-static uint8_t recv_char = NULL;
-static int recv_p1 = FALSE;
-static int sent_p1 = FALSE;
-static int recv_p2 = FALSE;
-static int sent_p2 = FALSE;
-static int flag = FALSE;
-static uint8_t ack_p1 = NULL;
-static uint8_t ack_p2 = NULL;
-static char char_to_send = NULL;
-static char player = NULL;
+
 
 
 int main (void)
 {
+    char player = NULL;
+    char recv_char = NULL;
+    char recv_result = NULL;
+    int flag = FALSE;
+    int flag_ack = FALSE;
+    char char_to_send = NULL;
+    
+    
     system_init ();
     tinygl_init (LOOP_RATE);
     tinygl_font_set (&font5x7_1);
     tinygl_text_speed_set (MESSAGE_RATE);
     tinygl_text_mode_set (TINYGL_TEXT_MODE_STEP);
-    
     navswitch_init ();
     ir_uart_init();
-   
-    pacer_init (PACER_RATE);
+    pacer_init (LOOP_RATE);
+    /** Select your player number **/
+    player = select_option(PLAYERTEXT);
+    /** Select your game selection **/
+    char_to_send = select_option(GAMETEXT);
     
     
-    
-    
-    //Cycle through players to select your number
-    while (1)
-    {
-        pacer_wait();
-        tinygl_update();
-        if (player == NULL)
-        {
-            player = select_option ("12");
-        }
-        display_character(player);
-        break;
-    }
-    
-    char character = GAMETEXT[0];
-    char* gametext = GAMETEXT;
-    display_character(character);
-    //cycle through PSR selection
-    while(1)
-    {
-        pacer_wait();
-        tinygl_update();
-        if (char_to_send == NULL) {
-            char_to_send = select_option(gametext);
-            break;
-        }
-    }
-    
-    
-    
-    while (1)
-    {
-        pacer_wait();
-        tinygl_update();
-        navswitch_update();
-        
-        while (1) {
-            if (player == PLAYER1) {
-                while (recv_char == NULL) { 
-                    recv_char = receive();
-                }
-                if (recv_char != NULL && recv_char != ACKNOWLEGDE) {
-                    transmit(ACKNOWLEGDE);
-                }
-                recv_p1 = TRUE;
-                break;
-                
-            } else if (player == PLAYER2) {
-                
-                transmit(char_to_send);
-                ack_p2 = receive();
-                if (ack_p2 != NULL && ack_p2 != 0) {
-                    sent_p2 = TRUE;
-                    break;
-                }
-            }
-        }
-        
-        while (1) {
-            if (player == '1') {
-                transmit(char_to_send);
-                ack_p1 = receive();
-                if (ack_p1 != NULL && ack_p1 != 0) {
-                    sent_p1 = TRUE;
-                    break;
-                }
-            
-                
-            } else if (player == '2') {
-                
-                while (recv_char == NULL) { 
-                    recv_char = receive();
-                }
-                if (recv_char != NULL && recv_char != ACKNOWLEGDE) {
-                    transmit(ACKNOWLEGDE);
-                }
-                recv_p2 = TRUE;
-                break;
-            }
-        }
-        
-        
-        //if ((sent_p1 && recv_p1 && ack_p1) || (sent_p2 && recv_p2 && ack_p2)) {
-          //  break;
-        //}
-    
-        tinygl_text_mode_set(TINYGL_TEXT_MODE_SCROLL);
-        int result = test_for_win(char_to_send, recv_char);
-        
-        tinygl_text(result);
-        //display_character(result);
-        while (1) {
-            while (!flag) {
-                transmit(char_to_send);
+    if (player == PLAYER1) {        //MASTER PLAYER WORKS {i think}
+        while (!flag) {
+            pacer_wait();
+            recv_char = receive();
+            if (recv_char == 'P' || recv_char == 'S' || recv_char == 'R') { //magic num
+                transmit(ACKNOWLEGDE);
                 flag = TRUE;
+                
             }
+        }
+        
+        char result = test_for_win(char_to_send, recv_char);
+        
+        //need to send before display
+        /*
+        while (!flag_ack) {
+            pacer_wait();
+            transmit(result);
+            recv_char = receive();
+            if (recv_char == ACKNOWLEGDE) { //magic num
+                flag_ack = TRUE;
+            }
+        }
+        */
+        display_character(result);
+        while (1) {
             pacer_wait();
             tinygl_update();
         }
+       
+       
+       
+       
+       
+    } else if (player == PLAYER2) {
+        //recv the ack message
+        while (!flag) {
+            pacer_wait();
+            transmit(char_to_send);
+            recv_char = receive();
+            if (recv_char == ACKNOWLEGDE) { //magic num
+                flag = TRUE;
+            }
+        }
+        
+        while (!flag_ack) {
+            pacer_wait();
+            recv_result = receive();
+            if (recv_result == WIN || recv_result == DRAW || recv_result == LOSS) { //magic num
+                transmit(ACKNOWLEGDE);
+                flag_ack = TRUE;
+            }
+        }
+        
+        display_character(recv_result);
+        while (1) {
+            pacer_wait();
+            tinygl_update();
+        }
+    
     }
 }
-        
+    
+
+    
+    
+   
+   
+   
+   
+   
