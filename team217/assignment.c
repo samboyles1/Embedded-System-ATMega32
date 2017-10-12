@@ -5,12 +5,14 @@
  * Jerry Yu {}
  * 
  * 9th October 2017
+ * 
+ * A simple 'Paper, Scissors, Rock' game designed to be played using two ATMega32U2 Microcontrollers
  * */
  
  /*
   * 
   * TODO:
-  * -set up the ir communtications (need two boards to test)
+  * -
   * -put entire game into a loop so they can play (3) games and then display final scores at the end
   * -get rid of 'magic numbers'
   * -abstract extra methods out into their own files
@@ -25,7 +27,7 @@
 #include "extra.h"
 #include "../fonts/font5x7_1.h"
 
-#define LOOP_RATE 300
+#define LOOP_RATE 450
 
 #define NULL 0
 #define TRUE 1
@@ -36,14 +38,17 @@
 #define GAMETEXT "PSR\0"
 #define PLAYERTEXT "12\0"
 
+#define PAPER 'P'
+#define SCISSORS 'S'
+#define ROCK 'R'
 
 #define WIN 'W'
 #define DRAW 'D'
 #define LOSS 'L'
 
-#define ACKNOWLEGDE 'A'
-#define PLAYER1 '1'
-#define PLAYER2 '2'
+#define ACKNOWLEDGE 'A'
+#define PLAYER1 '1' /** MASTER **/ 
+#define PLAYER2 '2' /** SECONDARY **/
 
 
 
@@ -72,12 +77,12 @@ int main (void)
     char_to_send = select_option(GAMETEXT);
     
     
-    if (player == PLAYER1) {        //MASTER PLAYER WORKS {i think}
+    if (player == PLAYER1) {
         while (!flag) {
             pacer_wait();
             recv_char = receive();
-            if (recv_char == 'P' || recv_char == 'S' || recv_char == 'R') { //magic num
-                transmit(ACKNOWLEGDE);
+            if (recv_char == PAPER || recv_char == SCISSORS || recv_char == ROCK) {
+                transmit(ACKNOWLEDGE);
                 flag = TRUE;
                 
             }
@@ -85,46 +90,42 @@ int main (void)
         
         char result = test_for_win(char_to_send, recv_char);
         
-        //need to send before display
-        /*
-        while (!flag_ack) {
-            pacer_wait();
-            transmit(result);
-            recv_char = receive();
-            if (recv_char == ACKNOWLEGDE) { //magic num
-                flag_ack = TRUE;
-            }
-        }
-        */
+        
         int i = 5;
         while (i > 0) {
-            transmit(ACKNOWLEGDE);
+            transmit(ACKNOWLEDGE);
             i--;
         }
+        transmit(result);
         display_character(result);
-        int num = 0;
+        
+       
+        
+        int num = FALSE;
+        
+            
+        
         while (1) {
             pacer_wait();
             if (num) {
                 tinygl_update();
             } else {
                 transmit(result);
-                
             }
             num = !num;
         }
+     
        
        
        
        
        
     } else if (player == PLAYER2) {
-        //recv the ack message
         while (!flag) {
             pacer_wait();
             transmit(char_to_send);
             recv_char = receive();
-            if (recv_char == ACKNOWLEGDE) { //magic num
+            if (recv_char == ACKNOWLEDGE) { 
                 flag = TRUE;
             }
         }
@@ -132,21 +133,16 @@ int main (void)
         while (!flag_ack) {
             pacer_wait();
             recv_result = receive();
-            if (recv_result == WIN || recv_result == DRAW || recv_result == LOSS) { //magic num
-                //transmit(ACKNOWLEGDE);
+            if (recv_result == WIN || recv_result == DRAW || recv_result == LOSS) { 
                 flag_ack = TRUE;
             }
         }
         
+        char inverted_result = invert_result(recv_result);
         
-        if (recv_result == WIN) {
-            display_character(LOSS);
-        } else if (recv_result == LOSS) {
-            display_character(WIN);
-        } else if (recv_result == DRAW) {
-            display_character(DRAW);
-        }
-        
+        //tinygl_text_mode_set(TINYGL_TEXT_MODE_SCROLL);
+        //tinygl_text("Draw");
+        display_character(inverted_result);
         while (1) {
             pacer_wait();
             tinygl_update();

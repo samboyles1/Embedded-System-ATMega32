@@ -14,5 +14,6 @@ void transmit(char char_to_send);
 
 char receive(void);
 
+char invert_result(char recv_result);
 
 #endif

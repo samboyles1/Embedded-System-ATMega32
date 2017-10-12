@@ -116,4 +116,14 @@ char receive(void)
     
 }
 
+char invert_result(char recv_result)
+{
+        if (recv_result == WIN) {
+            return LOSS;
+        } else if (recv_result == LOSS) {
+            return WIN;
+        } else if (recv_result == DRAW) {
+            return DRAW;
+        }
+}
 
