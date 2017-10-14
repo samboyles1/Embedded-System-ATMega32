@@ -27,7 +27,7 @@
 #include "extra.h"
 #include "../fonts/font5x7_1.h"
 
-#define LOOP_RATE 450
+#define LOOP_RATE 300
 
 #define NULL 0
 #define TRUE 1
@@ -59,22 +59,32 @@ int main (void)
     char recv_char = NULL;
     char recv_result = NULL;
     int flag = FALSE;
-    int flag_ack = FALSE;
     char char_to_send = NULL;
+    char result = NULL;
+    char inverted_result = NULL;
     
-    
+    //Initialise the game
     system_init ();
     tinygl_init (LOOP_RATE);
     tinygl_font_set (&font5x7_1);
     tinygl_text_speed_set (MESSAGE_RATE);
-    tinygl_text_mode_set (TINYGL_TEXT_MODE_STEP);
+    tinygl_text_mode_set (TINYGL_TEXT_MODE_SCROLL);
     navswitch_init ();
     ir_uart_init();
     pacer_init (LOOP_RATE);
+    
+    //Display start screen
+    start_game();
+    
     /** Select your player number **/
     player = select_option(PLAYERTEXT);
     /** Select your game selection **/
     char_to_send = select_option(GAMETEXT);
+    
+    
+    
+    
+    
     
     
     if (player == PLAYER1) {
@@ -82,71 +92,29 @@ int main (void)
             pacer_wait();
             recv_char = receive();
             if (recv_char == PAPER || recv_char == SCISSORS || recv_char == ROCK) {
-                transmit(ACKNOWLEDGE);
+                result = test_for_win(char_to_send, recv_char);
                 flag = TRUE;
-                
             }
         }
         
-        char result = test_for_win(char_to_send, recv_char);
-        
-        
-        int i = 5;
-        while (i > 0) {
-            transmit(ACKNOWLEDGE);
-            i--;
+        for (int i = 0; i < 5; i++) {
+            transmit(result);
         }
-        transmit(result);
-        display_character(result);
         
-       
         
-        int num = FALSE;
-        
-            
-        
-        while (1) {
-            pacer_wait();
-            if (num) {
-                tinygl_update();
-            } else {
-                transmit(result);
-            }
-            num = !num;
-        }
-     
-       
-       
-       
-       
+        display_result(result);
        
     } else if (player == PLAYER2) {
         while (!flag) {
             pacer_wait();
             transmit(char_to_send);
-            recv_char = receive();
-            if (recv_char == ACKNOWLEDGE) { 
+            recv_result = receive();
+            if (recv_result == WIN || recv_result == DRAW || recv_result == LOSS) { 
                 flag = TRUE;
             }
         }
-        
-        while (!flag_ack) {
-            pacer_wait();
-            recv_result = receive();
-            if (recv_result == WIN || recv_result == DRAW || recv_result == LOSS) { 
-                flag_ack = TRUE;
-            }
-        }
-        
-        char inverted_result = invert_result(recv_result);
-        
-        //tinygl_text_mode_set(TINYGL_TEXT_MODE_SCROLL);
-        //tinygl_text("Draw");
-        display_character(inverted_result);
-        while (1) {
-            pacer_wait();
-            tinygl_update();
-        }
+        inverted_result = invert_result(recv_result);
+        display_result(inverted_result);
     
     }
 }
