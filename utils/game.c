@@ -7,6 +7,8 @@
  * 9th October 2017
  * 
  * A simple 'Paper, Scissors, Rock' game designed to be played using two ATMega32U2 Microcontrollers
+ * 
+ * This module contains functions that assist in the function of the game Paper Scissors Rock
  * */
 
 #include "system.h"
@@ -137,33 +139,6 @@ char select_option(char* gametext)
     }
 }
 
-
-
-
-/**
- * Transmit the character you want to send over the ir blaster.
- * @param char_to_send The character you want to transmit
- **/
-void transmit(char char_to_send)
-{
-    ir_uart_putc(char_to_send);
-}
-
-/**
- * Recieve a character from the IR receiver
- * @return The value read by the IR Receiver
- */
-char receive(void)
-{
-    if (ir_uart_read_ready_p ())
-    {
-        uint8_t data;
-        data = ir_uart_getc ();
-        return data;
-    } 
-    return 0;
-    
-}
 
 /** 
  * Inverts the result so that it can be sent and displayed properly on

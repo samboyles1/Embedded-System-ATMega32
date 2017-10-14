@@ -14,8 +14,6 @@
   * TODO:
   * -
   * -put entire game into a loop so they can play (3) games and then display final scores at the end
-  * -get rid of 'magic numbers'
-  * -abstract extra methods out into their own files
   * 
   * 
   * */
@@ -24,7 +22,8 @@
 #include "navswitch.h"
 #include "ir_uart.h"
 #include "tinygl.h"
-#include "extra.h"
+#include "game.h"
+#include "transmission.h"
 #include "../fonts/font5x7_1.h"
 
 #define LOOP_RATE 300
@@ -81,12 +80,6 @@ int main (void)
     /** Select your game selection **/
     char_to_send = select_option(GAMETEXT);
     
-    
-    
-    
-    
-    
-    
     if (player == PLAYER1) {
         while (!flag) {
             pacer_wait();
@@ -97,7 +90,7 @@ int main (void)
             }
         }
         
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 5; i++) {   //magic number
             transmit(result);
         }
         
