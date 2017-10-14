@@ -72,6 +72,8 @@ int main (void)
     
     while (1) {
         pacer_wait();
+        tinygl_update();
+        navswitch_update();
         char recv_char = NULL;
         char recv_result = NULL;
         int flag = FALSE;
