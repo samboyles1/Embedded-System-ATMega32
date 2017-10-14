@@ -13,7 +13,6 @@
 
 #include "system.h"
 #include "navswitch.h"
-#include "ir_uart.h"
 #include "tinygl.h"
 #include "pacer.h"
 #include <string.h>
@@ -167,17 +166,21 @@ char invert_result(char recv_result)
 void display_result(char result)
 {
     if (result == WIN) {
-        tinygl_text("Winner");
+        tinygl_text("Winner! Press to play again");
     } else if (result == DRAW) {
-        tinygl_text("Draw");
+        tinygl_text("Draw! Press to play again");
     } else if (result == LOSS) {
-        tinygl_text("Loser");
+        tinygl_text("Loser! Press to play again");
     }
     
     while (1) 
     {
         pacer_wait();
         tinygl_update();
+        navswitch_update();
+        if (navswitch_push_event_p(NAVSWITCH_PUSH)) {
+            break;
+        }
     }
     
     

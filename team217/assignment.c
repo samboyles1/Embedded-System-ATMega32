@@ -32,7 +32,7 @@
 #define TRUE 1
 #define FALSE 0
 
-#define MESSAGE_RATE 25
+#define MESSAGE_RATE 30
 
 #define GAMETEXT "PSR\0"
 #define PLAYERTEXT "12\0"
@@ -49,18 +49,10 @@
 #define PLAYER1 '1' /** MASTER **/ 
 #define PLAYER2 '2' /** SECONDARY **/
 
-
-
+static char player = NULL;
 
 int main (void)
 {
-    char player = NULL;
-    char recv_char = NULL;
-    char recv_result = NULL;
-    int flag = FALSE;
-    char char_to_send = NULL;
-    char result = NULL;
-    char inverted_result = NULL;
     
     //Initialise the game
     system_init ();
@@ -77,38 +69,52 @@ int main (void)
     
     /** Select your player number **/
     player = select_option(PLAYERTEXT);
-    /** Select your game selection **/
-    char_to_send = select_option(GAMETEXT);
     
-    if (player == PLAYER1) {
-        while (!flag) {
-            pacer_wait();
-            recv_char = receive();
-            if (recv_char == PAPER || recv_char == SCISSORS || recv_char == ROCK) {
-                result = test_for_win(char_to_send, recv_char);
-                flag = TRUE;
-            }
-        }
+    while (1) {
+        pacer_wait();
+        char recv_char = NULL;
+        char recv_result = NULL;
+        int flag = FALSE;
+        char char_to_send = NULL;
+        char result = NULL;
+        char inverted_result = NULL;
         
-        for (int i = 0; i < 5; i++) {   //magic number
-            transmit(result);
-        }
-        
-        
-        display_result(result);
-       
-    } else if (player == PLAYER2) {
-        while (!flag) {
-            pacer_wait();
-            transmit(char_to_send);
-            recv_result = receive();
-            if (recv_result == WIN || recv_result == DRAW || recv_result == LOSS) { 
-                flag = TRUE;
-            }
-        }
-        inverted_result = invert_result(recv_result);
-        display_result(inverted_result);
+        /** Select your game selection **/
+        char_to_send = select_option(GAMETEXT);
     
+    
+    
+        if (player == PLAYER1) {
+            while (!flag) {
+                pacer_wait();
+                recv_char = receive();
+                if (recv_char == PAPER || recv_char == SCISSORS || recv_char == ROCK) {
+                    result = test_for_win(char_to_send, recv_char);
+                    flag = TRUE;
+                }
+            }
+            
+            for (int i = 0; i < 5; i++) {   //magic number
+                transmit(result);
+            }
+            
+            
+            display_result(result);
+           
+        } else if (player == PLAYER2) {
+            while (!flag) {
+                pacer_wait();
+                transmit(char_to_send);
+                recv_result = receive();
+                if (recv_result == WIN || recv_result == DRAW || recv_result == LOSS) { 
+                    flag = TRUE;
+                }
+            }
+            inverted_result = invert_result(recv_result);
+            display_result(inverted_result);
+        
+        
+        }
     }
 }
     

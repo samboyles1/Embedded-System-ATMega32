@@ -58,7 +58,7 @@ pacer.o: ../utils/pacer.c ../drivers/avr/system.h ../drivers/avr/timer.h ../util
 tinygl.o: ../utils/tinygl.c ../drivers/avr/system.h ../drivers/display.h ../utils/font.h ../utils/tinygl.h
 	$(CC) -c $(CFLAGS) $< -o $@
 
-game.o: ../utils/game.c ../drivers/avr/system.h ../drivers/navswitch.h ../drivers/avr/ir_uart.h ../utils/tinygl.h ../utils/pacer.h
+game.o: ../utils/game.c ../drivers/avr/system.h ../drivers/navswitch.h ../utils/tinygl.h ../utils/pacer.h
 	$(CC) -c $(CFLAGS) $< -o $@
 
 transmission.o: ../utils/transmission.c ../drivers/avr/system.h ../drivers/avr/ir_uart.h
