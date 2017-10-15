@@ -98,9 +98,10 @@ char test_for_win(char player_me, char player_them)
 /** Cycle through the given string to allow a player to select their option,
  *  continues on button press
  *  @param gametext The string with which selections are to be chosen from
+ *  @param gametext_len The length of the given game string
  *  @return The selected value
  */
-char select_option(char* gametext)
+char select_option(char* gametext, int gametext_len)
 {
     int position = 0; 
     char character = gametext[0];
@@ -111,9 +112,9 @@ char select_option(char* gametext)
         navswitch_update();
         //Currently cycles through each of the characters in gametext to enable selection
         if (navswitch_push_event_p (NAVSWITCH_SOUTH)) {
-            if (position+1 > strlen(gametext)-1) {      //magic num change to strlen
+            if (position+1 > gametext_len-1) {      
                 character = gametext[position];
-                position = 0;            //magic num
+                position = 0;            
                 
             } else {
                 character = gametext[position++];

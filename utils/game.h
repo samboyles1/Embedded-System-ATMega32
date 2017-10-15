@@ -2,7 +2,7 @@
  * ENCE260 Embedded Systems Assignment 2017
  * 
  * Sam Boyles 14560776
- * Jerry Yu {}
+ * Jerry Yu
  * 
  * 9th October 2017
  * 
@@ -38,7 +38,7 @@ int test_for_win(uint8_t player_me, uint8_t player_them);
  *  @param gametext The string with which selections are to be chosen from
  *  @return The selected value
  */
-char select_option(char* gametext);
+char select_option(char* gametext, int gametext_len);
 
 /** 
  * Inverts the result so that it can be sent and displayed properly on

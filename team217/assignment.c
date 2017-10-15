@@ -2,21 +2,13 @@
  * ENCE260 Embedded Systems Assignment 2017
  * 
  * Sam Boyles 14560776
- * Jerry Yu {}
+ * Jerry Yu
  * 
  * 9th October 2017
  * 
  * A simple 'Paper, Scissors, Rock' game designed to be played using two ATMega32U2 Microcontrollers
  * */
  
- /*
-  * 
-  * TODO:
-  * -
-  * -put entire game into a loop so they can play (3) games and then display final scores at the end
-  * 
-  * 
-  * */
 #include "system.h"
 #include "pacer.h"
 #include "navswitch.h"
@@ -35,7 +27,9 @@
 #define MESSAGE_RATE 30
 
 #define GAMETEXT "PSR\0"
+#define GAMETEXT_LEN 3
 #define PLAYERTEXT "12\0"
+#define PLAYERTEXT_LEN 2
 
 #define PAPER 'P'
 #define SCISSORS 'S'
@@ -68,9 +62,10 @@ int main (void)
     start_game();
     
     /** Select your player number **/
-    player = select_option(PLAYERTEXT);
+    player = select_option(PLAYERTEXT, PLAYERTEXT_LEN);
     
     while (1) {
+        /** Initialse main and variables at the start of each new game**/
         pacer_wait();
         tinygl_update();
         navswitch_update();
@@ -82,10 +77,9 @@ int main (void)
         char inverted_result = NULL;
         
         /** Select your game selection **/
-        char_to_send = select_option(GAMETEXT);
-    
-    
-    
+        char_to_send = select_option(GAMETEXT, GAMETEXT_LEN);
+        
+        /** Game logic for Player 1 (The master board), which does the main comparisons **/
         if (player == PLAYER1) {
             while (!flag) {
                 pacer_wait();
@@ -95,14 +89,13 @@ int main (void)
                     flag = TRUE;
                 }
             }
-            
-            for (int i = 0; i < 5; i++) {   //magic number
-                transmit(result);
-            }
-            
-            
+            pacer_wait();
+            transmit(result);
+            transmit(result);
+            /** Displays the results on the LED matrix. Game can be restarted by pressing the nav button **/
             display_result(result);
-           
+        
+        /** Game logic for Player 2 **/
         } else if (player == PLAYER2) {
             while (!flag) {
                 pacer_wait();
@@ -112,10 +105,10 @@ int main (void)
                     flag = TRUE;
                 }
             }
+            /** Reverse the result that player 2 received, otherwise both boards would show winner (eg) **/
             inverted_result = invert_result(recv_result);
+            /** Displays the results on the LED matrix. Game can be restarted by pressing the nav button **/
             display_result(inverted_result);
-        
-        
         }
     }
 }

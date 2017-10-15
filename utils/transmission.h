@@ -2,7 +2,7 @@
  * ENCE260 Embedded Systems Assignment 2017
  * 
  * Sam Boyles 14560776
- * Jerry Yu {}
+ * Jerry Yu 
  * 
  * 9th October 2017
  * 
@@ -19,7 +19,7 @@
 /**
  * Transmit the character you want to send over the ir blaster.
  * @param char_to_send The character you want to transmit
- **/
+ */
 void transmit(char char_to_send);
 
 /**
@@ -27,5 +27,6 @@ void transmit(char char_to_send);
  * @return The value read by the IR Receiver
  */
 char receive(void);
+
 
 #endif
