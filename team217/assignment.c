@@ -49,14 +49,14 @@ int main (void)
 {
     
     //Initialise the game
-    system_init ();
-    tinygl_init (LOOP_RATE);
-    tinygl_font_set (&font5x7_1);
-    tinygl_text_speed_set (MESSAGE_RATE);
-    tinygl_text_mode_set (TINYGL_TEXT_MODE_SCROLL);
-    navswitch_init ();
+    system_init();
+    tinygl_init(LOOP_RATE);
+    tinygl_font_set(&font5x7_1);
+    tinygl_text_speed_set(MESSAGE_RATE);
+    tinygl_text_mode_set(TINYGL_TEXT_MODE_SCROLL);
+    navswitch_init();
     ir_uart_init();
-    pacer_init (LOOP_RATE);
+    pacer_init(LOOP_RATE);
     
     //Display start screen
     start_game();
@@ -71,7 +71,7 @@ int main (void)
         navswitch_update();
         char recv_char = NULL;
         char recv_result = NULL;
-        int flag = FALSE;
+        int received_flag = FALSE;
         char char_to_send = NULL;
         char result = NULL;
         char inverted_result = NULL;
@@ -81,12 +81,12 @@ int main (void)
         
         /** Game logic for Player 1 (The master board), which does the main comparisons **/
         if (player == PLAYER1) {
-            while (!flag) {
+            while (!received_flag) {
                 pacer_wait();
                 recv_char = receive();
                 if (recv_char == PAPER || recv_char == SCISSORS || recv_char == ROCK) {
                     result = test_for_win(char_to_send, recv_char);
-                    flag = TRUE;
+                    received_flag = TRUE;
                 }
             }
             pacer_wait();
@@ -97,12 +97,12 @@ int main (void)
         
         /** Game logic for Player 2 **/
         } else if (player == PLAYER2) {
-            while (!flag) {
+            while (!received_flag) {
                 pacer_wait();
                 transmit(char_to_send);
                 recv_result = receive();
                 if (recv_result == WIN || recv_result == DRAW || recv_result == LOSS) { 
-                    flag = TRUE;
+                    received_flag = TRUE;
                 }
             }
             /** Reverse the result that player 2 received, otherwise both boards would show winner (eg) **/
