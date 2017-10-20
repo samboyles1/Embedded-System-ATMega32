@@ -1,8 +1,8 @@
 /*
  * ENCE260 Embedded Systems Assignment 2017
  * 
- * Sam Boyles 14560776
- * Jerry Yu
+ * Sam Boyles 14560776 sbo49
+ * Jerry Yu 99821532 dyu21
  * 
  * 9th October 2017
  * 
