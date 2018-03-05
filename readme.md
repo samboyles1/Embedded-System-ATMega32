@@ -1,4 +1,4 @@
-ENCE260 Assignment 2017 - Paper, Scissors, Rock
+## ENCE260 Assignment 2017 - Paper, Scissors, Rock
 UC Fun Kit
 
 Authors
